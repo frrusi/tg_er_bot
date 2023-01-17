@@ -1,0 +1,21 @@
+#!/usr/bin/env python3.10
+
+from pathlib import Path
+
+from currency_api_service import get_currencies
+from exceptions import ApiServiceError
+from history import save_currency, DatabaseCurrencyStorage
+
+
+def main():
+    try:
+        currencies = get_currencies()
+    except ApiServiceError:
+        print("Не удалось получить валюты")
+        exit(1)
+
+    save_currency(currencies, DatabaseCurrencyStorage())
+
+
+if __name__ == "__main__":
+    main()
