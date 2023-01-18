@@ -10,3 +10,6 @@ venv/
 
 # PyCharm
 .idea/
+
+# Custom
+bot.ini
