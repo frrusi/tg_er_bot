@@ -1,0 +1,10 @@
+[bot]
+token =
+use_json = true
+
+[database]
+user = postgres
+password = postgres
+database = tgbot
+host = 127.0.0.1
+port = 5432
