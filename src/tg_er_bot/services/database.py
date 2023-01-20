@@ -28,3 +28,8 @@ class Database:
         return self.engine_connect(
             select(getattr(tables.User, role)).where(tables.User.id == user_id), is_return=True
         ).fetchone()[0]
+
+    async def get_admins(self) -> None:
+        return self.engine_connect(
+            select(tables.User.id, tables.User.username).where(tables.User.is_admin), is_return=True
+        ).fetchall()
