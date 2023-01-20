@@ -7,8 +7,9 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from sqlalchemy import create_engine
 
 from tg_er_bot.config import load_config
-from tg_er_bot.filters.role import RoleFilter, AdminFilter
+from tg_er_bot.filters.role import RoleFilter, AdminFilter, CreatorFilter
 from tg_er_bot.handlers.admin import register_admin
+from tg_er_bot.handlers.creator import register_creator
 from tg_er_bot.handlers.user import register_user
 from tg_er_bot.middlewares.database import DatabaseMiddleware
 from tg_er_bot.middlewares.role import RoleMiddleware
@@ -54,7 +55,9 @@ async def main():
     dp.middleware.setup(RoleMiddleware(config.tg_bot.admin_id))
     dp.filters_factory.bind(RoleFilter)
     dp.filters_factory.bind(AdminFilter)
+    dp.filters_factory.bind(CreatorFilter)
 
+    register_creator(dp)
     register_admin(dp)
     register_user(dp)
 
