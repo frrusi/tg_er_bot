@@ -43,3 +43,8 @@ class Database:
         return self.engine_connect(
             update(getattr(tables, table)).where(tables.User.id == user_id).values(**{field: value})
         )
+
+    async def is_user_blocked(self, user_id) -> None:
+        return self.engine_connect(
+            select(tables.User.is_blocked).where(tables.User.id == user_id), is_return=True
+        ).fetchone()[0]
