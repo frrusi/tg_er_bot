@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.engine import Engine
 
@@ -28,3 +28,18 @@ class Database:
         return self.engine_connect(
             select(getattr(tables.User, role)).where(tables.User.id == user_id), is_return=True
         ).fetchone()[0]
+
+    async def get_admins(self) -> None:
+        return self.engine_connect(
+            select(tables.User.id, tables.User.username).where(tables.User.is_admin), is_return=True
+        )
+
+    async def is_user_exists(self, user_id) -> None:
+        return self.engine_connect(
+            select(tables.User).where(tables.User.id == user_id), is_return=True
+        ).fetchone()
+
+    async def set_rights(self, table, user_id, field, value) -> None:
+        return self.engine_connect(
+            update(getattr(tables, table)).where(tables.User.id == user_id).values(**{field: value})
+        )
