@@ -7,12 +7,12 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from sqlalchemy import create_engine
 
 from tg_er_bot.config import load_config
-from tg_er_bot.filters.role import RoleFilter, AdminFilter, CreatorFilter
+from tg_er_bot.filters.role import AdminFilter, CreatorFilter
 from tg_er_bot.handlers.admin import register_admin
 from tg_er_bot.handlers.creator import register_creator
 from tg_er_bot.handlers.user import register_user
+from tg_er_bot.middlewares.ban import UserBannedMiddleware
 from tg_er_bot.middlewares.database import DatabaseMiddleware
-from tg_er_bot.middlewares.role import RoleMiddleware
 from tg_er_bot.utils.set_bot_commands import set_default_commands
 from tg_er_bot.utils.startup_notify import on_startup_notify
 
@@ -52,8 +52,7 @@ async def main():
     bot = Bot(token=config.tg_bot.token, parse_mode=types.ParseMode.HTML)
     dp = Dispatcher(bot, storage=storage)
     dp.middleware.setup(DatabaseMiddleware(pool))
-    dp.middleware.setup(RoleMiddleware())
-    dp.filters_factory.bind(RoleFilter)
+    dp.middleware.setup(UserBannedMiddleware())
     dp.filters_factory.bind(AdminFilter)
     dp.filters_factory.bind(CreatorFilter)
 
@@ -61,7 +60,6 @@ async def main():
     register_admin(dp)
     register_user(dp)
 
-    # start
     try:
         await dp.start_polling()
     finally:
