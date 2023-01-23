@@ -37,6 +37,7 @@ class User(base):
     is_bot = Column(BOOLEAN, nullable=False)
     is_admin = Column(BOOLEAN, default=False, nullable=False)
     is_creator = Column(BOOLEAN, default=False, nullable=False)
+    is_blocked = Column(BOOLEAN, default=False, nullable=False)
     first_name = Column(TEXT)
     last_name = Column(TEXT)
     username = Column(TEXT, nullable=False, unique=True)
