@@ -64,6 +64,7 @@ async def get_admin_rights(message: Message, db: Database, state: FSMContext):
     await message.reply("Выберите тип запроса:", reply_markup=get_keyboard(buttons))
     await SetAdmin.type.set()
 
+
 async def set_admin_rights(call: CallbackQuery, db: Database, state: FSMContext):
     user_data = await state.get_data()
     await db.set_rights("User", user_data["id"], "is_admin", call.data == "give")
