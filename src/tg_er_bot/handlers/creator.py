@@ -18,7 +18,7 @@ async def set_admin_rights(message: Message, db: Database):
     try:
         user_id, request_type = message.get_args().split()
     except ValueError:
-        await message.reply("/set_admin user_id request_type")
+        await message.reply("/set_admin user_id [true / false]")
         return
 
     await db.set_rights("User", user_id, "is_admin", request_type == "true")
