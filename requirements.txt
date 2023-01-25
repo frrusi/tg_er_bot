@@ -2,3 +2,4 @@ aiogram==2.24
 sqlalchemy==1.4.46
 psycopg2-binary==2.9.5
 prettytable==3.6.0
+emoji==2.2.0
