@@ -1,3 +1,4 @@
+import emoji
 from aiogram import Dispatcher
 from aiogram.types import Message
 from prettytable import PrettyTable
@@ -20,12 +21,8 @@ async def set_admin_rights(message: Message, db: Database):
         await message.reply("/set_admin user_id request_type")
         return
 
-    if not await db.is_user_exists(user_id):
-        await message.reply("Пользователь не найден")
-        return
-
     await db.set_rights("User", user_id, "is_admin", request_type == "true")
-    await message.reply("Успешно")
+    await message.reply(emoji.emojize(":check_mark_button:"))
 
 
 def register_creator(dp: Dispatcher):
