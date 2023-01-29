@@ -1,5 +1,5 @@
 from sqlalchemy import Column
-from sqlalchemy.dialects.postgresql import TEXT, SMALLINT, MONEY, INTEGER, BOOLEAN
+from sqlalchemy.dialects.postgresql import TEXT, SMALLINT, INTEGER, BOOLEAN, FLOAT
 from sqlalchemy.ext.declarative import declarative_base
 
 base = declarative_base()
@@ -21,13 +21,13 @@ class BaseModel(base):  # TODO
 class Currency(base):
     __tablename__ = "currencies"
 
-    id = Column(TEXT, primary_key=True)
-    num_code = Column(TEXT, nullable=False)
-    char_code = Column(TEXT, nullable=False)
-    nominal = Column(SMALLINT, nullable=False)
-    name = Column(TEXT, nullable=False)
-    value = Column(MONEY, nullable=False)
-    previous = Column(MONEY, nullable=False)
+    ID = Column(TEXT, primary_key=True)
+    NumCode = Column(TEXT, nullable=False)
+    CharCode = Column(TEXT, nullable=False)
+    Nominal = Column(SMALLINT, nullable=False)
+    Name = Column(TEXT, nullable=False)
+    Value = Column(FLOAT, nullable=False)
+    Previous = Column(FLOAT, nullable=False)
 
 
 class User(base):
