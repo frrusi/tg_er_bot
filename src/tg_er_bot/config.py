@@ -20,11 +20,11 @@ class TgBot:
 
 @dataclass
 class Config:
-    tg_bot: TgBot
     database: DatabaseConfig
+    tg_bot: TgBot = None
 
 
-def load_config(path: str):
+def load_bot_config(path: str):
     config = configparser.ConfigParser()
     config.read(path)
 
@@ -36,5 +36,14 @@ def load_config(path: str):
             admin_id=tg_bot.getint("admin_id"),
             use_json=tg_bot.getboolean("use_json"),
         ),
+        database=DatabaseConfig(**config["database"])
+    )
+
+
+def load_exchanger_config(path: str):
+    config = configparser.ConfigParser()
+    config.read(path)
+
+    return Config(
         database=DatabaseConfig(**config["database"])
     )
