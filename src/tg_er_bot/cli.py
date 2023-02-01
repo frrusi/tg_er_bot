@@ -6,7 +6,7 @@ from aiogram.contrib.fsm_storage.files import JSONStorage
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from sqlalchemy import create_engine
 
-from tg_er_bot.config import load_config
+from tg_er_bot.config import load_bot_config
 from tg_er_bot.filters.role import AdminFilter, CreatorFilter
 from tg_er_bot.handlers.admin import register_admin
 from tg_er_bot.handlers.creator import register_creator
@@ -34,7 +34,7 @@ async def main():
         format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
     )
     logger.error("Starting bot")
-    config = load_config("../../bot.ini")
+    config = load_bot_config("../../bot.ini")
 
     if config.tg_bot.use_json:
         storage = JSONStorage(path="storage.json")
