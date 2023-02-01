@@ -21,7 +21,7 @@ async def set_admin_rights(message: Message, db: Database):
         await message.reply("/set_admin user_id [true / false]")
         return
 
-    await db.set_rights("User", user_id, "is_admin", request_type == "true")
+    await db.set_rights(user_id, "is_admin", request_type == "true")
     await message.reply(emoji.emojize(":check_mark_button:"))
 
 

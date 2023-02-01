@@ -1,50 +1,72 @@
-from sqlalchemy import select, update
+from operator import methodcaller
+from typing import Iterable
+
+from sqlalchemy import orm, or_, update
+from sqlalchemy import select, ScalarResult, exc
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.engine import Engine
+from sqlalchemy.orm import Session
 
 from tg_er_bot.models import tables
-from tg_er_bot.models.role import UserRole
 
 
 class Database:
     def __init__(self, engine: Engine):
         self.engine = engine
-        tables.base.metadata.create_all(engine)
+        tables.Base.metadata.create_all(engine)
 
-    def engine_connect(self, *args, is_return=False):
-        with self.engine.connect().execution_options(autocommit=True) as connection:
-            if is_return:
-                return connection.execute(*args)
-            connection.execute(*args)
+    def _connect_session(self, *args, return_type: str = "one"):
+        with Session(self.engine, expire_on_commit=False) as session, session.begin():
+            try:
+                return methodcaller(return_type)(session.scalars(*args))
+            except exc.ResourceClosedError:
+                pass
+
+    def add_data(self, table, data: Iterable = None):
+        self._connect_session(insert(table), data)
+
+    async def is_user_blocked(self, user_id) -> bool:
+        try:
+            return self._connect_session(
+                select(tables.User.is_blocked).where(tables.User.id == user_id)
+            )
+        except orm.exc.NoResultFound:
+            return False
+
+    def _upsert(self, query) -> ScalarResult:
+        return self._connect_session(query)
 
     async def add_user(self, **kwargs) -> None:
-        """Сохранение пользователя в БД"""
+        self._upsert(insert(tables.User).values(**kwargs).on_conflict_do_nothing(index_elements=["id"]))
 
-        self.engine_connect(
-            insert(tables.User).values(**kwargs).on_conflict_do_nothing(index_elements=['id'])
+    def get_currencies(self, query_text: str):
+        if query_text:
+            return self._connect_session(
+                select(
+                    tables.Currency
+                ).where(
+                    or_(
+                        tables.Currency.Name.ilike(f"%{query_text}%"),
+                        tables.Currency.CharCode.ilike(f"%{query_text}%")
+                    )
+                ), return_type="all")
+
+        return self._connect_session(
+            select(tables.Currency),
+            return_type="all"
         )
 
-    async def get_user_role(self, user_id: int, role: UserRole) -> bool:
-        return self.engine_connect(
-            select(getattr(tables.User, role)).where(tables.User.id == user_id), is_return=True
-        ).fetchone()[0]
-
-    async def get_admins(self) -> None:
-        return self.engine_connect(
-            select(tables.User.id, tables.User.username).where(tables.User.is_admin), is_return=True
+    async def get_user_role(self, user_id: int, role: str) -> bool:
+        return self._connect_session(
+            select(getattr(tables.User, role)).where(tables.User.id == user_id)
         )
 
-    async def is_user_exists(self, user_id) -> None:
-        return self.engine_connect(
-            select(tables.User).where(tables.User.id == user_id), is_return=True
-        ).fetchone()
-
-    async def set_rights(self, table, user_id, field, value) -> None:
-        return self.engine_connect(
-            update(getattr(tables, table)).where(tables.User.id == user_id).values(**{field: value})
+    async def get_admins(self):
+        return self._connect_session(
+            select(tables.User.id, tables.User.username).where(tables.User.is_admin)
         )
 
-    async def is_user_blocked(self, user_id) -> None:
-        return self.engine_connect(
-            select(tables.User.is_blocked).where(tables.User.id == user_id), is_return=True
-        ).fetchone()[0]
+    async def set_rights(self, user_id, field, value):
+        return self._connect_session(
+            update(tables.User).where(tables.User.id == user_id).values(**{field: value})
+        )
