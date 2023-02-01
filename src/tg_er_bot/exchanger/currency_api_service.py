@@ -1,6 +1,5 @@
 import json
 import urllib.request
-from dataclasses import dataclass
 from json.decoder import JSONDecodeError
 from urllib.error import URLError
 
@@ -9,18 +8,7 @@ from exceptions import ApiServiceError
 EXCHANGERATES_URL = "https://www.cbr-xml-daily.ru/daily_json.js"
 
 
-@dataclass(slots=True, frozen=True)
-class Currency:
-    ID: str
-    NumCode: str
-    CharCode: str
-    Nominal: int
-    Name: str
-    Value: float
-    Previous: float
-
-
-def get_currencies() -> list[Currency]:
+def get_currencies() -> list[dict]:
     """Requests exchange rates in CBR API and returns it"""
 
     exchangerates_response = _get_exchangerates_response()
@@ -35,7 +23,7 @@ def _get_exchangerates_response() -> str:
         raise ApiServiceError
 
 
-def _parse_exchangerates_response(exchangerates_response: str) -> list[Currency]:
+def _parse_exchangerates_response(exchangerates_response: str) -> list[dict]:
     try:
         exchangerates_dict = json.loads(exchangerates_response)
     except JSONDecodeError:
