@@ -1,49 +1,46 @@
-from sqlalchemy import Column
+from typing import Optional
+
 from sqlalchemy.dialects.postgresql import TEXT, SMALLINT, INTEGER, BOOLEAN, FLOAT
-from sqlalchemy.ext.declarative import declarative_base
-
-base = declarative_base()
-
-
-class BaseModel(base):  # TODO
-    __abstract__ = True
-
-    # def get_columns(self):
-    #     return self.__mapper__.attrs.keys()
-    #
-    # def get_columns_names(self):
-    #     return [column.split('_', 1)[-1] for column in self.get_columns()]
-    #
-    # def get_columns_object(self):
-    #     return [attrgetter(column)(self.__class__) for column in self.get_columns()]
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 
 
-class Currency(base):
+class Base(DeclarativeBase):
+    type_annotation_map = {
+        int: INTEGER,
+        bool: BOOLEAN,
+        str: TEXT,
+        float: FLOAT
+    }
+
+
+class Currency(Base):
     __tablename__ = "currencies"
 
-    ID = Column(TEXT, primary_key=True)
-    NumCode = Column(TEXT, nullable=False)
-    CharCode = Column(TEXT, nullable=False)
-    Nominal = Column(SMALLINT, nullable=False)
-    Name = Column(TEXT, nullable=False)
-    Value = Column(FLOAT, nullable=False)
-    Previous = Column(FLOAT, nullable=False)
+    ID: Mapped[str] = mapped_column(primary_key=True)
+    NumCode: Mapped[str]
+    CharCode: Mapped[str]
+    Nominal: Mapped[int] = mapped_column(SMALLINT)
+    Name: Mapped[str]
+    Value: Mapped[float]
+    Previous: Mapped[float]
 
 
-class User(base):
+class User(Base):
     __tablename__ = "users"
 
-    id = Column(INTEGER, primary_key=True)
-    is_bot = Column(BOOLEAN, nullable=False)
-    is_admin = Column(BOOLEAN, default=False, nullable=False)
-    is_creator = Column(BOOLEAN, default=False, nullable=False)
-    is_blocked = Column(BOOLEAN, default=False, nullable=False)
-    first_name = Column(TEXT)
-    last_name = Column(TEXT)
-    username = Column(TEXT, nullable=False, unique=True)
-    language_code = Column(TEXT)
-    is_premium = Column(BOOLEAN)
-    added_to_attachment_menu = Column(BOOLEAN)
-    can_join_groups = Column(BOOLEAN)
-    can_read_all_group_messages = Column(BOOLEAN)
-    supports_inline_queries = Column(BOOLEAN)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    is_bot: Mapped[bool]
+    is_admin: Mapped[bool] = mapped_column(default=False)
+    is_creator: Mapped[bool] = mapped_column(default=False)
+    is_blocked: Mapped[bool] = mapped_column(default=False)
+    first_name: Mapped[Optional[str]]
+    last_name: Mapped[Optional[str]]
+    username: Mapped[Optional[str]]
+    language_code: Mapped[Optional[str]]
+    is_premium: Mapped[bool] = mapped_column(default=False)
+    added_to_attachment_menu: Mapped[bool] = mapped_column(default=False)
+    can_join_groups: Mapped[bool] = mapped_column(default=False)
+    can_read_all_group_messages: Mapped[bool] = mapped_column(default=False)
+    supports_inline_queries: Mapped[bool] = mapped_column(default=False)
