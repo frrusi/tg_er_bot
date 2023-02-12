@@ -20,7 +20,10 @@ async def inline_handler(query: InlineQuery, db: Database):
         title=currency.CharCode,
         description=f"{currency.Nominal} {currency.Name} = {currency.Value} ₽",
         input_message_content=InputTextMessageContent(
-            message_text="message_text"
+            message_text=f"<b>{currency.Date.strftime('%d/%m/%Y')}</b>:\n"
+                         f"{currency.Nominal} {currency.Name} = {currency.Value} ₽\n\n"
+                         f"<b>{currency.PreviousDate.strftime('%d/%m/%Y')}</b>:\n"
+                         f"{currency.Nominal} {currency.Name} = {currency.Previous} ₽"
         )
     ) for currency in currencies]
 
