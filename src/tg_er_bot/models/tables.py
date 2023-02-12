@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy.dialects.postgresql import TEXT, SMALLINT, INTEGER, BOOLEAN, FLOAT
+from sqlalchemy.dialects.postgresql import TEXT, SMALLINT, INTEGER, BOOLEAN, FLOAT, TIMESTAMP
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -25,6 +25,9 @@ class Currency(Base):
     Name: Mapped[str]
     Value: Mapped[float]
     Previous: Mapped[float]
+    Date: Mapped[str] = mapped_column(TIMESTAMP)
+    PreviousDate: Mapped[str] = mapped_column(TIMESTAMP)
+    Timestamp: Mapped[str] = mapped_column(TIMESTAMP)
 
 
 class User(Base):
