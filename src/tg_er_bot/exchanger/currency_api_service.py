@@ -29,4 +29,5 @@ def _parse_exchangerates_response(exchangerates_response: str) -> list[dict]:
     except JSONDecodeError:
         raise ApiServiceError
 
-    return [currency for currency in exchangerates_dict["Valute"].values()]
+    dates = {key: exchangerates_dict[key] for key in ("Date", "PreviousDate", "Timestamp")}
+    return [currency | dates for currency in exchangerates_dict["Valute"].values()]
