@@ -1,3 +1,6 @@
+from _decimal import Decimal
+
+import sqlalchemy.exc
 from aiogram import Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import CommandStart
@@ -30,7 +33,55 @@ async def inline_handler(query: InlineQuery, db: Database):
     await query.answer(articles, cache_time=60, is_personal=True)
 
 
-def register_user(dp: Dispatcher):
-    dp.register_message_handler(user_start, CommandStart(), state="*")
+def _get_conversion_result(left_value: str, right_value: float, sign: str) -> str:
+    match sign:
+        case '*':
+            return str(Decimal(left_value) * Decimal(right_value))
+        case '/':
+            return str(Decimal(left_value) / Decimal(right_value))
 
-    dp.register_inline_handler(inline_handler, state="*")
+
+async def _convert_currency(quantity: str, currency_code: str, sign: str, db: Database):
+    try:
+        currency_rate = await db.get_exchange_rates(currency_code)
+    except sqlalchemy.exc.NoResultFound:
+        return "Валюта не найдена"
+    return _get_conversion_result(quantity, currency_rate, sign)
+
+
+async def convert_from_rubles(message: Message, db: Database):
+    try:
+        quantity, currency_code = message.get_args().split()
+    except ValueError:
+        await message.reply("/from quantity currency [USD, EUR, etc.]")
+        return
+
+    await message.reply(await _convert_currency(quantity, currency_code, '/', db))
+
+
+async def convert_to_rubles(message: Message, db: Database):
+    try:
+        quantity, currency_code = message.get_args().split()
+    except ValueError:
+        await message.reply("/to quantity currency [USD, EUR, etc.]")
+        return
+
+    await message.reply(await _convert_currency(quantity, currency_code, '*', db))
+
+
+def register_user(dp: Dispatcher):
+    dp.register_message_handler(
+        user_start, CommandStart(), state="*"
+    )
+
+    dp.register_inline_handler(
+        inline_handler, state="*"
+    )
+
+    dp.register_message_handler(
+        convert_from_rubles, commands=["from"], state="*",
+    )
+
+    dp.register_message_handler(
+        convert_to_rubles, commands=["to"], state="*",
+    )
