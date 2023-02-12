@@ -70,3 +70,8 @@ class Database:
         return self._connect_session(
             update(tables.User).where(tables.User.id == user_id).values(**{field: value})
         )
+
+    async def get_exchange_rates(self, currency_code):
+        return self._connect_session(
+            select(tables.Currency.Value).where(tables.Currency.CharCode == currency_code)
+        )
