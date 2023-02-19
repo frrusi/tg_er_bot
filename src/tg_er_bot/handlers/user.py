@@ -33,20 +33,21 @@ async def inline_handler(query: InlineQuery, db: Database):
     await query.answer(articles, cache_time=60, is_personal=True)
 
 
-def _get_conversion_result(left_value: str, right_value: float, sign: str) -> str:
+def _get_conversion_result(quantity: str, currency_rate: float, nominal: int, sign: str) -> str:
     match sign:
         case '*':
-            return str(Decimal(left_value) * Decimal(right_value))
+            return str((Decimal(quantity) * (Decimal(currency_rate) / nominal)).quantize(Decimal("1.0000")))
         case '/':
-            return str(Decimal(left_value) / Decimal(right_value))
+            return str((Decimal(quantity) / (Decimal(currency_rate) / nominal)).quantize(Decimal("1.0000")))
 
 
 async def _convert_currency(quantity: str, currency_code: str, sign: str, db: Database):
     try:
-        currency_rate = await db.get_exchange_rates(currency_code)
+        currency_rate, nominal = await db.get_exchange_rates(currency_code)
     except sqlalchemy.exc.NoResultFound:
         return "Валюта не найдена"
-    return _get_conversion_result(quantity, currency_rate, sign)
+
+    return _get_conversion_result(quantity, currency_rate, nominal, sign)
 
 
 async def convert_from_rubles(message: Message, db: Database):
@@ -75,13 +76,13 @@ def register_user(dp: Dispatcher):
     )
 
     dp.register_inline_handler(
-        inline_handler, state="*"
+        inline_handler, state="*", is_user=True,
     )
 
     dp.register_message_handler(
-        convert_from_rubles, commands=["from"], state="*",
+        convert_from_rubles, commands=["from"], state="*", is_user=True,
     )
 
     dp.register_message_handler(
-        convert_to_rubles, commands=["to"], state="*",
+        convert_to_rubles, commands=["to"], state="*", is_user=True,
     )
