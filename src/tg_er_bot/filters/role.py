@@ -5,6 +5,17 @@ from aiogram.dispatcher.handler import ctx_data
 from aiogram.types.base import TelegramObject
 
 
+class UserFilter(BoundFilter):
+    key = "is_user"
+
+    def __init__(self, is_user: typing.Optional[bool] = None):
+        self.is_user = is_user
+
+    async def check(self, obj: TelegramObject):
+        data = ctx_data.get()
+        return await data.get("db").get_user_role(obj["from"]["id"], "id")
+
+
 class AdminFilter(BoundFilter):
     key = "is_admin"
 

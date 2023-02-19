@@ -7,7 +7,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from sqlalchemy import create_engine
 
 from tg_er_bot.config import load_bot_config
-from tg_er_bot.filters.role import AdminFilter, CreatorFilter
+from tg_er_bot.filters.role import AdminFilter, CreatorFilter, UserFilter
 from tg_er_bot.handlers.admin import register_admin
 from tg_er_bot.handlers.creator import register_creator
 from tg_er_bot.handlers.user import register_user
@@ -53,6 +53,7 @@ async def main():
     dp = Dispatcher(bot, storage=storage)
     dp.middleware.setup(DatabaseMiddleware(pool))
     dp.middleware.setup(UserBannedMiddleware())
+    dp.filters_factory.bind(UserFilter)
     dp.filters_factory.bind(AdminFilter)
     dp.filters_factory.bind(CreatorFilter)
 
