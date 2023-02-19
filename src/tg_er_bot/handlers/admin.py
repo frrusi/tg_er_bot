@@ -12,7 +12,7 @@ async def set_ban_status(message: Message, db: Database):
         await message.reply("/ban user_id [true / false]")
         return
 
-    await db.set_rights(user_id, "is_blocked", request_type == "true")
+    await db.set_rights(user_id, "is_blocked", request_type.lower() == "true")
     await message.reply(emoji.emojize(":check_mark_button:"))
 
 
